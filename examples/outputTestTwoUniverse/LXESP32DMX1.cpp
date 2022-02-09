@@ -198,38 +198,37 @@ void LX32DMX1::startOutput ( uint8_t pin ) {
 }
 
 void LX32DMX1::startInput ( uint8_t pin ) {
-	// if ( _xHandle != NULL ) {
-	// 	stop();
-	// }
+	if ( _xHandle != NULL ) {
+		stop();
+	}
 	
-	// // disable input --if direction pin is used-- until setup complete
-	// if ( _direction_pin != DIRECTION_PIN_NOT_USED ) {
-		Serial.println(" startInput direction pin");
-	// 	digitalWrite(_direction_pin, HIGH);
-	// }
+	// disable input --if direction pin is used-- until setup complete
+	if ( _direction_pin != DIRECTION_PIN_NOT_USED ) {
+		digitalWrite(_direction_pin, HIGH);
+	}
 	
-	// LXSerial1.begin(250000, SERIAL_8N2, pin, NO_PIN);
-	// LXSerial1.enableBreakDetect();
+	LXSerial1.begin(250000, SERIAL_8N2, pin, NO_PIN);
+	LXSerial1.enableBreakDetect();
 	
-	// _continue_task = 1;					// flag for task loop
-	// BaseType_t xReturned;
-  	// xReturned = xTaskCreate(
-    //                 receiveDMX,         /* Function that implements the task. */
-    //                 "DMX-In",              /* Text name for the task. */
-    //                 8192,               /* Stack size in words, not bytes. */
-    //                 this,               /* Parameter passed into the task. */
-    //                 tskIDLE_PRIORITY+1,   /* Priority at which the task is created. */
-    //                 &_xHandle );
+	_continue_task = 1;					// flag for task loop
+	BaseType_t xReturned;
+  	xReturned = xTaskCreate(
+                    receiveDMX,         /* Function that implements the task. */
+                    "DMX-In",              /* Text name for the task. */
+                    8192,               /* Stack size in words, not bytes. */
+                    this,               /* Parameter passed into the task. */
+                    tskIDLE_PRIORITY+1,   /* Priority at which the task is created. */
+                    &_xHandle );
             
-    // if( xReturned != pdPASS ) {
-    //     _xHandle = NULL;
-    // }
-    // _rdm_task_mode = 0;
+    if( xReturned != pdPASS ) {
+        _xHandle = NULL;
+    }
+    _rdm_task_mode = 0;
     
-    // resetFrame();
-    // if ( _direction_pin != DIRECTION_PIN_NOT_USED ) {
-	// 	digitalWrite(_direction_pin, LOW);
-	// }
+    resetFrame();
+    if ( _direction_pin != DIRECTION_PIN_NOT_USED ) {
+		digitalWrite(_direction_pin, LOW);
+	}
 }
 
 void LX32DMX1::startRDM ( uint8_t dirpin, uint8_t inpin, uint8_t outpin, uint8_t direction ) {
