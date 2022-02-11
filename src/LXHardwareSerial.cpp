@@ -226,8 +226,7 @@ void LXHardwareSerial::end() {
     if(uartGetDebug() == _uart_nr) {
         uartSetDebug(0);
     }
-    uartEnd(_uart, _rx_gpio_pin, _tx_gpio_pin);		//Arduino esp32 1.0.5
-    //uartEnd(_uart);								// 1.0.4
+    uartEnd(_uart, _tx_gpio_pin, _rx_gpio_pin);
     _uart = 0;
 }
 

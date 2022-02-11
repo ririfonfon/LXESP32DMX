@@ -299,7 +299,8 @@ uart_t* uartBegin(uint8_t uart_nr, uint32_t baudrate, uint32_t config, int8_t rx
     return uart;
 }
 
-void uartEnd(uart_t* uart)
+// void uartEnd(uart_t* uart)
+void uartEnd(uart_t* uart, uint8_t rxPin, uint8_t txPin)
 {
     if(uart == NULL) {
         return;

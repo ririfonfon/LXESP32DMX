@@ -1,4 +1,3 @@
-
 /**************************************************************************/
 /*!
     @file     inputTest.ino
@@ -24,10 +23,8 @@
 #include <LXESP32DMX.h>
 #include "esp_task_wdt.h"
 
-// DMX_DIRECTION_PIN 21 | 32
-// DMX_SERIAL_INPUT_PIN 16 | 34
-#define DMX_DIRECTION_PIN 21
-#define DMX_SERIAL_INPUT_PIN 16
+#define DMX_DIRECTION_PIN 32
+#define DMX_SERIAL_INPUT_PIN 34
 
 // the addresses of the slots to observe
 int test_slotA = 10;
@@ -40,9 +37,9 @@ uint8_t test_levelB = 0;
 uint8_t test_levelC = 0;
 
 //pins for PWM output
-uint8_t led_pinA = 35;
-uint8_t led_pinB = 33;
-uint8_t led_pinC = 25;
+uint8_t led_pinA = 12;
+uint8_t led_pinB = 18;
+uint8_t led_pinC = 19;
 
 //ledc channels (set to zero to disable)
 uint8_t led_channelA = 1;
@@ -54,24 +51,20 @@ uint8_t dataChanged = 1;
 /************************************************************************
 	attach a pin to a channel and configure PWM output
 *************************************************************************/
-void setupPWMChannel(uint8_t pin, uint8_t channel)
-{
-  if (channel)
-  {
-    ledcAttachPin(pin, channel);
-    ledcSetup(channel, 12000, 16); // 12 kHz PWM, 8-bit resolution
-  }
+void setupPWMChannel(uint8_t pin, uint8_t channel) {
+	if ( channel ) {
+		ledcAttachPin(pin, channel);
+		ledcSetup(channel, 12000, 16); // 12 kHz PWM, 8-bit resolution
+	}
 }
 
 /************************************************************************
 	gamma corrected write to a PWM channel
 *************************************************************************/
-void gammaCorrectedWrite(uint8_t channel, uint8_t level)
-{
-  if (channel)
-  {
-    ledcWrite(channel, level * level);
-  }
+void gammaCorrectedWrite(uint8_t channel, uint8_t level) {
+	if ( channel ) {
+		ledcWrite(channel, level*level);
+	}
 }
 
 /************************************************************************
@@ -88,40 +81,34 @@ void gammaCorrectedWrite(uint8_t channel, uint8_t level)
   
 *************************************************************************/
 
-void receiveCallback(int slots)
-{
-  if (slots)
-  {
-    xSemaphoreTake(ESP32DMX.lxDataLock, portMAX_DELAY);
-    if (test_levelA != ESP32DMX.getSlot(test_slotA))
-    {
-      test_levelA = ESP32DMX.getSlot(test_slotA);
-      dataChanged = 1;
-    }
-    if (test_levelB != ESP32DMX.getSlot(test_slotB))
-    {
-      test_levelB = ESP32DMX.getSlot(test_slotB);
-      dataChanged = 1;
-    }
-    if (test_levelC != ESP32DMX.getSlot(test_slotC))
-    {
-      test_levelC = ESP32DMX.getSlot(test_slotC);
-      dataChanged = 1;
-    }
-    xSemaphoreGive(ESP32DMX.lxDataLock);
-  }
+void receiveCallback(int slots) {
+	if ( slots ) {
+	    xSemaphoreTake( ESP32DMX.lxDataLock, portMAX_DELAY );
+		if ( test_levelA != ESP32DMX.getSlot(test_slotA) ) {
+			test_levelA = ESP32DMX.getSlot(test_slotA);
+			dataChanged = 1;
+		}
+		if ( test_levelB != ESP32DMX.getSlot(test_slotB) ) {
+			test_levelB = ESP32DMX.getSlot(test_slotB);
+			dataChanged = 1;
+		}
+		if ( test_levelC != ESP32DMX.getSlot(test_slotC) ) {
+			test_levelC = ESP32DMX.getSlot(test_slotC);
+			dataChanged = 1;
+		}
+		xSemaphoreGive( ESP32DMX.lxDataLock );
+	}
 }
 
 /************************************************************************
 	setup
 *************************************************************************/
-void setup()
-{
+void setup() {
   Serial.begin(115200);
   Serial.print("setup");
-
+  
   ESP32DMX.setDirectionPin(DMX_DIRECTION_PIN);
-
+  
   setupPWMChannel(led_pinA, led_channelA);
   setupPWMChannel(led_pinB, led_channelB);
   setupPWMChannel(led_pinC, led_channelC);
@@ -131,22 +118,18 @@ void setup()
 
   Serial.print(", start dmx input");
   ESP32DMX.startInput(DMX_SERIAL_INPUT_PIN);
-
+  
   Serial.println(", setup complete.");
-  // rearmr x2
-  delay(200);
-  pinMode(15, INPUT);
 }
+
 
 /************************************************************************
 	main loop just idles
 	vTaskDelay is called to prevent wdt timeout
 *************************************************************************/
 
-void loop()
-{
-  if (dataChanged)
-  {
+void loop() {
+  if ( dataChanged ) {
     dataChanged = 0;
     Serial.print(test_slotA);
     Serial.print(" => ");
@@ -160,9 +143,8 @@ void loop()
     Serial.print(" => ");
     Serial.println(test_levelC);
     gammaCorrectedWrite(led_channelC, test_levelC);
-  }
-  else
-  {
+  } else {
     delay(25);
   }
+  
 }
