@@ -24,12 +24,12 @@
 #include "esp_task_wdt.h"
 
 #define DMX_DIRECTION_PIN 32
-#define DMX_SERIAL_INPUT_PIN 34
+#define DMX_SERIAL_INPUT_PIN 16
 
 // the addresses of the slots to observe
-int test_slotA = 10;
-int test_slotB = 1;
-int test_slotC = 512;
+int test_slotA = 1;
+int test_slotB = 2;
+int test_slotC = 3;
 
 // the levels of those slots
 uint8_t test_levelA = 0;
@@ -37,9 +37,9 @@ uint8_t test_levelB = 0;
 uint8_t test_levelC = 0;
 
 //pins for PWM output
-uint8_t led_pinA = 12;
-uint8_t led_pinB = 18;
-uint8_t led_pinC = 19;
+uint8_t led_pinA = 26;
+uint8_t led_pinB = 33;
+uint8_t led_pinC = 25;
 
 //ledc channels (set to zero to disable)
 uint8_t led_channelA = 1;
@@ -106,6 +106,11 @@ void receiveCallback(int slots) {
 void setup() {
   Serial.begin(115200);
   Serial.print("setup");
+
+  // DISARM RX2 (using gpio15)
+  pinMode(DMX_SERIAL_INPUT_PIN, OUTPUT);
+  digitalWrite(DMX_SERIAL_INPUT_PIN, LOW);
+  delay(200);
   
   ESP32DMX.setDirectionPin(DMX_DIRECTION_PIN);
   
@@ -117,6 +122,9 @@ void setup() {
   ESP32DMX.setDataReceivedCallback(receiveCallback);
 
   Serial.print(", start dmx input");
+  // REARM RX2 (using gpio15)
+  pinMode(DMX_SERIAL_INPUT_PIN, INPUT);
+  delay(200);
   ESP32DMX.startInput(DMX_SERIAL_INPUT_PIN);
   
   Serial.println(", setup complete.");
